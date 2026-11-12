@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Calculate fees, margins and break-even for Uzum Market products across FBO, FBS, DBS and EDBS.">
+  <title>Uzum Seller Profit Calculator</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="top-inner">
+      <a class="brand" href="./"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span> Uzum Profit Planner</a>
+      <div class="top-links"><a href="#fee-guide">Fee guide</a><span class="privacy">UZS</span></div>
+    </div>
+  </header>
+  <main class="page">
+    <div class="intro">
+      <div><p class="eyebrow">UZUM MARKET <span>/</span> SELLER TOOLS</p><h1>Seller profit calculator</h1><p>Plan one product at a time and see what each order contributes after fees.</p></div>
+      <span class="currency">Fee rules checked 12 Nov 2026</span>
+    </div>
+    <div class="products panel">
+      <label class="field product-select" for="product-select"><span>Saved products</span><select id="product-select"></select></label>
+      <div class="product-buttons"><button type="button" class="button primary" id="new-product">+ Add product</button><button type="button" class="button" id="copy-product">Duplicate</button><button type="button" class="button" id="delete-product">Delete</button></div>
+      <span id="save-status" class="hint">Plans stay in this browser.</span>
+    </div>
+    <div class="workspace">
+      <form id="planner" novalidate class="panel inputs">
+        <div class="panel-head"><div><h2>Product setup</h2><p>Product details, prices and expected orders</p></div><span class="badge assumption">Editable inputs</span></div>
+        <div id="basics" class="body-pad"></div>
+        <section class="input-section">
+          <div class="section-head"><h3>Category &amp; commission</h3><span id="rate-badge" class="badge verified">Uzum workbook</span></div>
+          <label class="field" for="category-query"><span>Find your category</span><input id="category-query" type="search" autocomplete="off" placeholder="Search by ID, Uzbek or Russian"></label>
+          <div id="category-results" class="category-results" hidden></div>
+          <p class="category-current" id="category-current"></p>
+          <div id="commission-fields" class="section-fields"></div>
+          <p class="hint" id="commission-note"></p>
+        </section>
+        <section class="input-section">
+          <div class="section-head"><h3>Package &amp; delivery</h3><span id="logistics-badge" class="badge verified">Uzum tariff</span></div>
+          <div id="package-fields"></div><p class="hint" id="package-note"></p>
+        </section>
+        <section class="input-section"><div class="section-head"><h3>Seller costs</h3></div><div id="seller-fields"></div><p class="hint" id="seller-note"></p></section>
+        <div id="modules"></div>
+        <details class="input-section">
+          <summary><h3>Custom costs &amp; credits</h3><span id="extra-count"></span></summary>
+          <div id="extra-lines"></div>
+          <button type="button" class="button" id="add-line">+ Add cost or credit</button>
+          <p class="hint">Use a quoted or invoiced amount for services such as preparation, cross-docking, packaging, finance, insurance, compensation, or an adjustment for an unusual case.</p>
+        </details>
+        <div id="validation" class="validation" role="status" hidden></div>
+      </form>
+      <section class="results" aria-label="Profit results">
+        <div class="summary">
+          <div class="summary-top"><h2>Projected total profit</h2><span class="summary-tag" id="profit-status">Live estimate</span></div>
+          <div class="hero-number" id="total">—</div><p id="revenue-caption">—</p>
+          <div class="summary-metrics">
+            <div><span>Profit / kept unit</span><strong id="unit-profit">—</strong></div>
+            <div><span>Net margin</span><strong id="net-margin">—</strong></div>
+            <div><span>Realized markup</span><strong id="markup">—</strong></div>
+          </div>
+        </div>
+        <div class="panel metrics-panel">
+          <div><span>Contribution / ordered unit</span><strong id="contribution">—</strong><small id="contribution-margin">—</small></div>
+          <div><span>Break-even sales</span><strong id="break-even">—</strong><small id="break-even-revenue">—</small></div>
+          <div><span>Break-even list price</span><strong id="break-even-price">—</strong><small id="break-even-price-caption">At planned volume</small></div>
+        </div>
+        <section class="panel comparison">
+          <div class="panel-head"><div><h2>Compare prices</h2><p>List-price markup on purchase cost · same order mix</p></div></div>
+          <div class="table-wrap" tabindex="0" aria-label="Pricing scenario table">
+            <table><thead><tr><th scope="col">Markup</th><th scope="col">List price</th><th scope="col">Net margin</th><th scope="col">Break-even units</th><th scope="col">Total profit</th><th scope="col"><span class="sr-only">Apply price</span></th></tr></thead><tbody id="scenarios"></tbody></table>
+          </div>
+          <p class="hint compare-hint" id="comparison-note"></p>
+        </section>
+        <details class="panel breakdown" open>
+          <summary><h2>Fee &amp; cost breakdown</h2><span id="variable-summary"></span></summary>
+          <div class="ledger" id="ledger"></div>
+        </details>
+      </section>
+    </div>
+    <section class="panel sources" id="fee-guide">
+      <div class="panel-head"><div><h2>Fee guide &amp; sources</h2><p>Published rules, workbook rates, and seller estimates are labeled in the breakdown.</p></div></div>
+      <div class="table-wrap fee-models" tabindex="0" aria-label="Fees by fulfillment model">
+        <table><thead><tr><th scope="col">Model</th><th scope="col">Uzum sales charge</th><th scope="col">Buyer delivery</th><th scope="col">Inventory storage</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">FBO</th><td>Category commission</td><td>Uzum logistics tariff</td><td>Uzum storage tariff</td></tr>
+          <tr><th scope="row">FBS</th><td>Category commission</td><td>Uzum logistics tariff plus your handover costs</td><td>Your storage cost</td></tr>
+          <tr><th scope="row">DBS</th><td>Category commission</td><td>Your delivery cost</td><td>Your storage cost</td></tr>
+          <tr><th scope="row">EDBS</th><td>Category service rate or Auto per-order fee</td><td>Your delivery cost</td><td>Your storage cost</td></tr>
+        </tbody></table>
+      </div>
+      <div class="source-grid">
+        <div><h3>How the plan works</h3><p>Ordered units are before returns and cancellations. Kept units produce item revenue. Refunds remove revenue and reverse ordinary Uzum sales fees. Packaging and delivery can still cost money once dispatched. Inventory write-offs apply only to the expected share you cannot resell.</p><p>Break-even volume uses expected contribution per ordered unit and keeps the entered period charges constant. Break-even list price varies price only. Price scenarios hold the order mix and period charges constant. Manual price bands can change the commission rate between scenarios.</p><p>The workbooks contain category rate snapshots. If your seller cabinet shows a price tier, promotion rule, eligibility limit, or a special contract rate, enter the effective rate or set up to three manual price bands. Price thresholds in this planner use the list price.</p></div>
+        <div><h3>Official sources</h3><div id="official-links"></div></div>
+      </div>
+    </section>
+  </main>
+  <footer>Uzum seller planning · Independent calculator</footer>
+</body>
+</html>
